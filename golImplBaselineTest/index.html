@@ -1,0 +1,40 @@
+<html>
+    <pre id="grid"></pre>
+    <script src="./golImplBaseline.js"></script>
+    <script>
+        window.onload = () => {
+            const width  = 10;
+            const height = 20;
+            const {initCell, update, queryCell} = mkGameBaseline(width, height);
+
+            glider = [
+                [0, 1, 0],
+                [0, 0, 1],
+                [1, 1, 1],
+            ];
+            for (let y = 0; y < 3; y++) {
+                for (let x = 0; x < 3; x++) {
+                    initCell(x, y, glider[y][x]);
+                }
+            }
+
+            const gridEl = document.getElementById("grid");
+            setInterval(() => {
+                update();
+
+                gridEl.innerHTML = "";
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const isAlive = queryCell(x, y);
+                        if (isAlive) {
+                            gridEl.innerHTML += "##";
+                        } else {
+                            gridEl.innerHTML += ". ";
+                        }
+                    }
+                    gridEl.innerHTML += "\n";
+                }
+            }, 100);
+        }
+    </script>
+</html>

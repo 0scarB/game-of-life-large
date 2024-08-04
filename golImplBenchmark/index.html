@@ -1,0 +1,83 @@
+<html>
+    <head>
+        <script src="./golImplBaseline.js"></script>
+    </head>
+    <body>
+        <pre id="results"></pre>
+        <button id="pausePlayBtn">Start</button>
+        <script>
+            const width  = 128;
+            const height = 128;
+
+            const impls  = [
+                ["baseline", mkGameBaseline(width, height)],
+            ];
+            const implsN = impls.length;
+
+            //
+            // Fill random
+            //
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const cellIsAlive = Math.random() < 0.5 ? 0 : 1;
+                    for (const [_, {initCell}] of impls) {
+                        initCell(x, y, cellIsAlive);
+                    }
+                }
+            }
+
+            let gens = 0;
+            const totalMillis = [];
+            for (let i = 0; i < implsN; ++i) {
+                totalMillis[i] = 0;
+            }
+
+            const resultsEl = document.getElementById("results");
+            const reps = 100;
+            const updateFuncs = impls.map(([_, impl]) => impl.update);
+            const implNames  = impls.map(([name, _]) => name);
+
+            let benchmarkIntervalId;
+            let benchmarkIsPaused = true;
+            const startOrResumeBenchmark = () => {
+                benchmarkIntervalId = setInterval(() => {
+                    for (let i = 0; i < implsN; ++i) {
+                        const update = updateFuncs[i];
+                        const t0 = performance.now();
+                        for (let j = 0; j < reps; ++j) {
+                            update();
+                            ++gens;
+                        }
+                        const t1 = performance.now();
+                        totalMillis[i] += t1 - t0;
+                    }
+
+                    results.innerHTML = "";
+                    for (let i = 0; i < implsN; ++i) {
+                        results.innerHTML += implNames[i];
+                        results.innerHTML += ": avg secs per gen: ";
+                        const avgSecsPerGen = 0.001*totalMillis[i]/gens;
+                        results.innerHTML += avgSecsPerGen + "\n";
+                    }
+                }, 10);
+                benchmarkIsPaused = false;
+            }
+
+            const pauseBenchmark = () => {
+                clearInterval(benchmarkIntervalId);
+                benchmarkIsPaused = true;
+            }
+
+            const pausePlayBtnEl = document.getElementById("pausePlayBtn");
+            pausePlayBtnEl.onmousedown = () => {
+                if (benchmarkIsPaused) {
+                    startOrResumeBenchmark();
+                    pausePlayBtnEl.innerHTML = "Pause";
+                } else {
+                    pauseBenchmark();
+                    pausePlayBtnEl.innerHTML = "Resume";
+                }
+            }
+        </script>
+    </body>
+</html>
