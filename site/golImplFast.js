@@ -1,0 +1,1 @@
+../golImplFast.js
