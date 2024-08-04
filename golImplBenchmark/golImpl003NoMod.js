@@ -1,0 +1,1 @@
+../golImpl003NoMod.js

@@ -1,15 +1,22 @@
 <html>
     <pre id="grid"></pre>
     <script src="./golImplBaseline.js"></script>
+    <script src="./golImpl003NoMod.js"></script>
     <script>
         window.onload = () => {
             const width  = 10;
             const height = 20;
             const {initCell, update, queryCell} = mkGameBaseline(width, height);
+            //const {initCell, update, queryCell} = mkGameNoMod(width, height);
 
+            //glider = [
+            //    [0, 1, 0],
+            //    [0, 0, 1],
+            //    [1, 1, 1],
+            //];
             glider = [
                 [0, 1, 0],
-                [0, 0, 1],
+                [1, 0, 0],
                 [1, 1, 1],
             ];
             for (let y = 0; y < 3; y++) {

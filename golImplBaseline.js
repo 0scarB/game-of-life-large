@@ -1,5 +1,3 @@
-const mod = (a, b) => (a+b)%b;
-
 const mkGameBaseline = (width, height) => {
     let gridOld = [];
     let gridNew = [];
@@ -19,22 +17,21 @@ const mkGameBaseline = (width, height) => {
         gridOld[y][x] = value;
     }
 
+    const mod = (a, b) => (a+b)%b;
+
     const update = () => {
         for (let y = 0; y < height; ++y) {
             for (let x = 0; x < width; ++x) {
                 const cellWasAlive = gridOld[y][x];
 
                 let liveNeighbors = 0;
-                for (let ny = y-1; ny <= y+1; ++ny) {
-                    for (let nx = x-1; nx <= x+1; ++nx) {
+                for (let ny = y-1; ny <= y+1; ++ny)
+                    for (let nx = x-1; nx <= x+1; ++nx)
                         liveNeighbors +=
                             gridOld[mod(ny, height)][mod(nx, width)];
-                    }
-                }
                 liveNeighbors -= cellWasAlive;
 
-                gridNew[y][x] = (liveNeighbors === 3 ||
-                                 liveNeighbors === 2 && cellWasAlive)+0;
+                gridNew[y][x] = ((liveNeighbors | cellWasAlive) == 3)+0;
             }
         }
 
@@ -44,7 +41,7 @@ const mkGameBaseline = (width, height) => {
     }
 
     const queryCell = (x, y) => {
-        return gridNew[y][x];
+        return gridOld[y][x];
     }
 
     return {initCell, update, queryCell};

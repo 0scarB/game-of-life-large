@@ -1,16 +1,29 @@
+<!DOCTYPE HTML>
 <html>
     <head>
         <script src="./golImplBaseline.js"></script>
+        <script src="./golImpl002Uint8Arrays.js"></script>
+        <script src="./golImpl003NoMod.js"></script>
+        <script src="./golImpl004FlatNoMod.js"></script>
+        <script src="./golImpl005LocalizedFlatNoMod.js"></script>
+        <script src="./golImpl006SingleArrFlatNoMod.js"></script>
+        <script src="./golImplFast.js"></script>
     </head>
     <body>
         <pre id="results"></pre>
         <button id="pausePlayBtn">Start</button>
         <script>
-            const width  = 128;
-            const height = 128;
+            const width  = 256;
+            const height = 256;
 
             const impls  = [
-                ["baseline", mkGameBaseline(width, height)],
+                ["baseline                       ", mkGameBaseline   (width, height)],
+                ["Uint8Arrays                    ", mkGameUint8Arrays(width, height)],
+                ["no mod                         ", mkGameNoMod      (width, height)],
+                ["no mod + flat                  ", mkGameFlatNoMod  (width, height)],
+                ["localize memory + flat + no mod", mkGameLocalizeFlatNoMod  (width, height)],
+                ["no mod + flat + single array   ", mkGameSingleArrFlatNoMod(width, height)],
+                ["fast                           ", mkGameFast(width, height)],
             ];
             const implsN = impls.length;
 
@@ -25,6 +38,27 @@
                     }
                 }
             }
+
+            //
+            // Test implementations are working correctly
+            //
+            const baselineImpl = impls[0][1];
+            for (let gen = 0; gen < 16; ++gen) {
+                baselineImpl.update();
+
+                for (let i = 1; i < implsN; ++i) {
+                    const [name, impl] = impls[i];
+                    impl.update();
+                    for (let y = 0; y < height; ++y) {
+                        for (let x = 0; x < width; ++x) {
+                            if (impl.queryCell(x, y)
+                                !== baselineImpl.queryCell(x, y)
+                            ) throw `${name} has incorrect implementation! x=${x} y=${y} gen=${gen}. Expected ${baselineImpl.queryCell(x, y)}, got ${impl.queryCell(x, y)}`;
+                        }
+                    }
+                }
+            }
+
 
             let gens = 0;
             const totalMillis = [];
@@ -46,11 +80,11 @@
                         const t0 = performance.now();
                         for (let j = 0; j < reps; ++j) {
                             update();
-                            ++gens;
                         }
                         const t1 = performance.now();
                         totalMillis[i] += t1 - t0;
                     }
+                    gens += reps;
 
                     results.innerHTML = "";
                     for (let i = 0; i < implsN; ++i) {

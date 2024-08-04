@@ -1,0 +1,1 @@
+../golImpl006SingleArrFlatNoMod.js
