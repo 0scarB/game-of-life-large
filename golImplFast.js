@@ -53,6 +53,10 @@ const mkGameFast = (w, h) => {
         return gridOld[(y+1)*w2 + x+1];
     }
 
-    return {initCell, update, queryCell};
+    const getGrid = () => {
+        return gridOld;
+    }
+
+    return {initCell, update, queryCell, getGrid};
 }
 
