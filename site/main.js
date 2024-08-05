@@ -5,10 +5,10 @@ let shouldRepaintCanvas = false;
 let canvasEl;
 let ctx;
 const grid = {
-    x: -1,
-    y: -1,
-    w: 1024,
-    h: 1024,
+           x:                        -1,
+           y:                        -1,
+           w:                      1024,
+           h:                      1024,
     cellSize: CELL_SIZE_AT_DEFAULT_ZOOM,
 };
 
@@ -57,11 +57,29 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    let t0 = performance.now();
+    const AVG_FPS_N_FRAMES = 100;
+    const avgFpsEl = document.getElementById("avg-fps");
+    let frameT0 = performance.now();
+    const nFramesDurations = [];
+    const updateFPS = () => {
+        const frameT1 = performance.now();
+        nFramesDurations.push(frameT1 - frameT0);
+        frameT0 = frameT1;
+        if (nFramesDurations.length > AVG_FPS_N_FRAMES) {
+            nFramesDurations.shift();
+        }
+        let frameDurationsSum = 0;
+        for (const frameDuration of nFramesDurations)
+            frameDurationsSum += frameDuration;
+        const avgFps = 1000*nFramesDurations.length/frameDurationsSum;
+        avgFpsEl.innerHTML = `Avg. FPS; last ${AVG_FPS_N_FRAMES} frames: ` + avgFps.toFixed(2);
+    }
+
+    let genT0   = performance.now();
     const mainLoop = () => {
-        const t1 = performance.now();
-        if (t1 - t0 > genDurationSecs*1000) {
-            t0 = t1;
+        const genT1 = performance.now();
+        if (genT1 - genT0 > genDurationSecs*1000) {
+            genT0 = genT1;
 
             game.update();
 
@@ -73,6 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
             shouldRepaintCanvas = false;
         }
 
+        updateFPS();
         requestAnimationFrame(mainLoop);
     };
     requestAnimationFrame(mainLoop);

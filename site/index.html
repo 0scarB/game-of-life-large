@@ -6,8 +6,16 @@
     </head>
     <body style="width:100%;height:100%;margin:0;padding:0;overflow:none">
         <main style="width:100%;height:100%;display:flex;flex-direction:column">
-            <canvas style="width:100%;flex-grow:2;background-color:black"
-                id="canvas"></canvas>
+            <div
+                style="position:absolute;background-color:#FFFC;top:16px;right:16px;z-index:10;padding:8px"
+                id="fps-counter"
+            >
+                <pre style="padding:0;margin:0" id="avg-fps"></pre>
+            </div>
+            <canvas
+                style="width:100%;flex-grow:2;background-color:black"
+                id="canvas"
+            ></canvas>
         </main>
     </body>
 </html>
