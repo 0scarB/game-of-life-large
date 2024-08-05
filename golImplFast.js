@@ -1,3 +1,5 @@
+"use strict";
+
 const mkGameFast = (w, h) => {
     const w1 = w+1
     const h1 = h+1
@@ -41,7 +43,7 @@ const mkGameFast = (w, h) => {
                 gridOld[nextRow-1] + gridOld[nextRow] + gridOld[nextRow+1];
 
             const cellWasAlive = gridOld[i];
-            gridNew[i] = ((liveNeighbors | cellWasAlive)== 3)+0;
+            gridNew[i] = ((liveNeighbors | cellWasAlive) === 3) | 0;
         }
 
         const tmp = gridNew;

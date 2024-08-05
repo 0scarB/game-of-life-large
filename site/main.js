@@ -1,3 +1,5 @@
+"use strict";
+
 const CELL_SIZE_AT_DEFAULT_ZOOM = 2;
 
 let genDurationSecs = 0.05;
@@ -35,23 +37,32 @@ window.addEventListener("DOMContentLoaded", () => {
         ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
         const gameGrid = game.getGrid();
+        const gameGridRowLen = grid.w+2;
 
         ctx.fillStyle = "cyan";
-        for (
-            let cellY = grid.y, gameY = 1;
-            cellY < grid.y+grid.h*grid.cellSize;
-            cellY += grid.cellSize, ++gameY
-        ) {
-            for (
-                let cellX = grid.x, gameX = 1;
-                cellX < grid.x+grid.w*grid.cellSize;
-                cellX += grid.cellSize, ++gameX
-            ) {
-                if (cellX < -grid.cellSize || cellY < -grid.cellSize ||
-                    cellX > canvasEl.width || cellY > canvasEl.height
-                ) continue;
-                if (gameGrid[gameY*(grid.w+2) + gameX]) {
-                    ctx.fillRect(cellX, cellY, grid.cellSize, grid.cellSize);
+
+        const cellIdxStartY = grid.y > 0
+            ? 0
+            : Math.floor(-grid.y/grid.cellSize);
+        const cellIdxStartX = grid.x > 0
+            ? 0
+            : Math.floor(-grid.x/grid.cellSize);
+        const cellStopY = (grid.y+grid.h*grid.cellSize) < canvasEl.height
+            ? grid.h
+            : grid.h - Math.floor(
+                (grid.y+grid.h*grid.cellSize - canvasEl.height)/grid.cellSize)
+        const cellStopX = (grid.x+grid.w*grid.cellSize) < canvasEl.width
+            ? grid.w
+            : grid.w - Math.floor(
+                (grid.x+grid.w*grid.cellSize - canvasEl.width)/grid.cellSize)
+        for (let cellIdxY = cellIdxStartY; cellIdxY < cellStopY; ++cellIdxY) {
+            const gameGridRowStart = (cellIdxY+1)*gameGridRowLen + 1;
+            const cellY = grid.y+cellIdxY*grid.cellSize;
+            for (let cellIdxX = cellIdxStartX; cellIdxX < cellStopX; ++cellIdxX) {
+                if (gameGrid[gameGridRowStart + cellIdxX]) {
+                    ctx.fillRect(
+                        grid.x+cellIdxX*grid.cellSize, cellY,
+                        grid.cellSize, grid.cellSize);
                 }
             }
         }
@@ -61,7 +72,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const avgFpsEl = document.getElementById("avg-fps");
     let frameT0 = performance.now();
     const nFramesDurations = [];
-    const updateFPS = () => {
+    const updateFPSCounter = () => {
         const frameT1 = performance.now();
         nFramesDurations.push(frameT1 - frameT0);
         frameT0 = frameT1;
@@ -91,7 +102,7 @@ window.addEventListener("DOMContentLoaded", () => {
             shouldRepaintCanvas = false;
         }
 
-        updateFPS();
+        updateFPSCounter();
         requestAnimationFrame(mainLoop);
     };
     requestAnimationFrame(mainLoop);
